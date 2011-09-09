@@ -8,7 +8,8 @@
 #define DMX_PRO_END_MSG 0xE7
 
 ofxDmx::ofxDmx()
-:connected(false) {
+:connected(false)
+,needsUpdate(false) {
 }
 
 ofxDmx::~ofxDmx() {
@@ -44,27 +45,33 @@ void ofxDmx::setChannels(unsigned int channels) {
 	levels.resize(ofClamp(channels, 24, 512));
 }
 
-void ofxDmx::update() {
-	unsigned int n = levels.size();
-	unsigned int packetSize = DMX_PRO_HEADER_SIZE + n + DMX_PRO_END_SIZE;
-	vector<unsigned char> packet(packetSize);
-	
-	// header
-	packet[0] = DMX_PRO_START_MSG;
-	packet[1] = DMX_PRO_SEND_PACKET;
-	packet[2] = n & 255; // data length lsb
-	packet[3] = (n >> 8) & 255; // data length msb
-	
-	// levels
-	copy(levels.begin(), levels.end(), packet.begin() + 4);
-	
-	// end
-	packet[packetSize - 1] = DMX_PRO_END_MSG;
-	
-	serial.writeBytes(&packet[0], packetSize);
+void ofxDmx::update(bool force) {
+	if(needsUpdate || force) {
+		needsUpdate = false;
+		unsigned int n = levels.size();
+		unsigned int packetSize = DMX_PRO_HEADER_SIZE + n + DMX_PRO_END_SIZE;
+		vector<unsigned char> packet(packetSize);
+		
+		// header
+		packet[0] = DMX_PRO_START_MSG;
+		packet[1] = DMX_PRO_SEND_PACKET;
+		packet[2] = n & 255; // data length lsb
+		packet[3] = (n >> 8) & 255; // data length msb
+		
+		// levels
+		copy(levels.begin(), levels.end(), packet.begin() + 4);
+		
+		// end
+		packet[packetSize - 1] = DMX_PRO_END_MSG;
+		
+		serial.writeBytes(&packet[0], packetSize);
+	}
 }
 
 void ofxDmx::setLevel(unsigned int channel, unsigned char level) {
+	if(level != levels[channel]) {
+		needsUpdate = true;
+	}
 	levels[channel] = level;
 }
 

@@ -18,7 +18,7 @@ public:
 	void setLevel(unsigned int channel, unsigned char level);
 	void clear();
 	unsigned char getLevel(unsigned int channel);	
-	void update(); // send a packet to the dmx controller
+	void update(bool force = false); // send a packet to the dmx controller
 	
 	void setChannels(unsigned int channels = 24); // change the number of channels
 	bool isConnected();
@@ -27,5 +27,6 @@ private:
 	int connected;
 	vector<unsigned char> levels;
 	ofSerial serial;
+	bool needsUpdate;
 };
 
