@@ -69,6 +69,10 @@ void ofxDmx::update(bool force) {
 }
 
 void ofxDmx::setLevel(unsigned int channel, unsigned char level) {
+	if(channel > levels.size()) {
+		ofLogError() << "Channel " + ofToString(channel) + " is out of bounds.";
+		return;
+	}
 	if(level != levels[channel]) {
 		needsUpdate = true;
 	}
@@ -82,5 +86,9 @@ void ofxDmx::clear() {
 }
 
 unsigned char ofxDmx::getLevel(unsigned int channel) {
+	if(channel > levels.size()) {
+		ofLogError() << "Channel " + ofToString(channel) + " is out of bounds.";
+		return 0;
+	}
 	return levels[channel];
 }
