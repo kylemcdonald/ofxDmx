@@ -9,13 +9,13 @@
 class ofApp : public ofBaseApp {
 public:
 	void setup();
+	void exit();
 	void update();
 	void draw();
 	void keyPressed(int key);
 	
-	ofxCurvesTool curvesTool;
+	ofxCurvesTool redCurve, greenCurve, blueCurve;
 	ofxDmx dmx;
-	ofImage img;
 	ofxAutoControlPanel panel;
 	string port;
 	int modules, channelsPerModule;

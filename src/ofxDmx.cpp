@@ -69,6 +69,7 @@ void ofxDmx::update(bool force) {
 		
 		serial.writeBytes(&packet[0], packetSize);
 		
+#ifdef OFXDMX_SPEW
 		cout << "@" << ofGetSystemTime() << endl;
 		for(int i = 0; i < packetSize; i++) {
 			cout << setw(2) << hex << (int) packet[i];
@@ -76,6 +77,7 @@ void ofxDmx::update(bool force) {
 				cout << endl;
 			}
 		}
+#endif
 	}
 }
 

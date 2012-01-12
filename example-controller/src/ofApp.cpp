@@ -3,14 +3,14 @@
 void ofApp::setup() {
 	ofSetVerticalSync(true);
 	
-	curvesTool.setup(256);
-	img.allocate(256, 256, OF_IMAGE_GRAYSCALE);
+	redCurve.setup(256);
+	greenCurve.setup(256);
+	blueCurve.setup(256);
 	
 	ofxXmlSettings xml("dmx.xml");
 	port = xml.getValue("port", "");
 	modules = xml.getValue("modules", 10);
 	channelsPerModule = xml.getValue("channelsPerModule", 4);
-	dmx.connect(port, modules * channelsPerModule);
 	
 	panel.setup(256, 740);
 	panel.setPosition(4, 4);
@@ -24,16 +24,31 @@ void ofApp::setup() {
 		string label = "mod" + ofToString(module);
 		panel.addSlider(label, 0, 0, 255, true);
 	}
+	panel.loadSettings("settings.xml");
+	
+	panel.setValueB("loadCurves", true);
+	
+	dmx.connect(port, modules * channelsPerModule);
+	dmx.update(true); // black on startup
+}
+
+void ofApp::exit() {
+	dmx.clear();
+	dmx.update(true); // black on shutdown
 }
 
 void ofApp::update() {
-	if(curvesTool.isLutNew()) {
-		for(int x = 0; x < 256; x++) {
-			for(int y = 0; y < 256; y++) {
-				img.setColor(x, y, ofColor(curvesTool[x]));
-			}
-		}
-		img.update();
+	if(panel.getValueB("saveCurves")) {
+		redCurve.save("redCurve.yml");
+		greenCurve.save("greenCurve.yml");
+		blueCurve.save("blueCurve.yml");
+		panel.setValueB("saveCurves", false);
+	}
+	if(panel.getValueB("loadCurves")) {
+		redCurve.load("redCurve.yml");
+		greenCurve.load("greenCurve.yml");
+		blueCurve.load("blueCurve.yml");
+		panel.setValueB("loadCurves", false);
 	}
 	
 	float red = panel.getValueF("red");
@@ -43,24 +58,15 @@ void ofApp::update() {
 	for(int module = 1; module <= modules; module++) {
 		string label = "mod" + ofToString(module);
 		int cur = panel.getValueI(label);
-		dmx.setLevel(channel++, curvesTool[cur * red]);
-		dmx.setLevel(channel++, curvesTool[cur * green]);
-		dmx.setLevel(channel++, curvesTool[cur * blue]);
+		dmx.setLevel(channel++, redCurve[cur * red]);
+		dmx.setLevel(channel++, greenCurve[cur * green]);
+		dmx.setLevel(channel++, blueCurve[cur * blue]);
 		channel++;
 	}
-	//if(dmx.isConnected()) {
+	if(dmx.isConnected()) {
 		dmx.update();
-	/*} else {
+	} else {
 		panel.msg = "Could not connect to port " + port;
-	}*/
-	
-	if(panel.getValueB("saveCurves")) {
-		curvesTool.save("curves.yml");
-		panel.setValueB("saveCurves", false);
-	}
-	if(panel.getValueB("loadCurves")) {
-		curvesTool.load("curves.yml");
-		panel.setValueB("loadCurves", false);
 	}
 }
 
@@ -68,10 +74,11 @@ void ofApp::draw() {
 	ofBackground(0);
 	ofPushMatrix();
 	ofTranslate(256 + 8, 4);
-	curvesTool.draw(0);
-	img.draw(256, 0);
+	redCurve.draw(0, 0);
+	greenCurve.draw(0, 256);
+	blueCurve.draw(0, 512);
 	
-	ofTranslate(0, 256);
+	ofTranslate(256, 0);
 	int channel = 1;
 	for(int module = 1; module <= modules; module++) {
 		string label = "mod" + ofToString(module);
