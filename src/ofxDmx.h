@@ -28,5 +28,6 @@ private:
 	vector<unsigned char> levels;
 	ofSerial serial;
 	bool needsUpdate;
+	
+	bool badChannel(unsigned int channel);
 };
-

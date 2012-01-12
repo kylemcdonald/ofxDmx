@@ -3,7 +3,9 @@
 
 #define DMX_PRO_HEADER_SIZE 4
 #define DMX_PRO_START_MSG 0x7E
-#define DMX_PRO_SEND_PACKET 6 // periodically send a DMX packet at this rate
+#define DMX_START_CODE 0
+#define DMX_START_CODE_SIZE 1
+#define DMX_PRO_SEND_PACKET 6 // "periodically send a DMX packet" mode
 #define DMX_PRO_END_SIZE 1
 #define DMX_PRO_END_MSG 0xE7
 
@@ -48,35 +50,56 @@ void ofxDmx::setChannels(unsigned int channels) {
 void ofxDmx::update(bool force) {
 	if(needsUpdate || force) {
 		needsUpdate = false;
-		unsigned int n = levels.size();
-		unsigned int packetSize = DMX_PRO_HEADER_SIZE + n + DMX_PRO_END_SIZE;
+		unsigned int dataSize = levels.size() + DMX_START_CODE_SIZE;
+		unsigned int packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
 		vector<unsigned char> packet(packetSize);
 		
 		// header
 		packet[0] = DMX_PRO_START_MSG;
 		packet[1] = DMX_PRO_SEND_PACKET;
-		packet[2] = n & 255; // data length lsb
-		packet[3] = (n >> 8) & 255; // data length msb
+		packet[2] = dataSize & 0xff; // data length lsb
+		packet[3] = (dataSize >> 8) & 0xff; // data length msb
 		
-		// levels
-		copy(levels.begin(), levels.end(), packet.begin() + 4);
+		// data
+		packet[4] = DMX_START_CODE; // first data byte
+		copy(levels.begin(), levels.end(), packet.begin() + 5);
 		
 		// end
 		packet[packetSize - 1] = DMX_PRO_END_MSG;
 		
 		serial.writeBytes(&packet[0], packetSize);
+		
+		cout << "@" << ofGetSystemTime() << endl;
+		for(int i = 0; i < packetSize; i++) {
+			cout << setw(2) << hex << (int) packet[i];
+			if((i + 1) % 8 == 0) {
+				cout << endl;
+			}
+		}
 	}
 }
 
-void ofxDmx::setLevel(unsigned int channel, unsigned char level) {
+bool ofxDmx::badChannel(unsigned int channel) {
 	if(channel > levels.size()) {
-		ofLogError() << "Channel " + ofToString(channel) + " is out of bounds.";
+		ofLogError() << "Channel " + ofToString(channel) + " is out of bounds. Only " + ofToString(levels.size()) + " channels are available.";
+		return true;
+	}
+	if(channel == 0) {
+		ofLogError() << "Channel 0 does not exist. DMX channels start at 1.";
+		return true;
+	}
+	return false;
+}
+
+void ofxDmx::setLevel(unsigned int channel, unsigned char level) {
+	if(badChannel(channel)) {
 		return;
 	}
+	channel--; // convert from 1-initial to 0-initial
 	if(level != levels[channel]) {
+		levels[channel] = level;
 		needsUpdate = true;
 	}
-	levels[channel] = level;
 }
 
 void ofxDmx::clear() {
@@ -86,9 +109,9 @@ void ofxDmx::clear() {
 }
 
 unsigned char ofxDmx::getLevel(unsigned int channel) {
-	if(channel > levels.size()) {
-		ofLogError() << "Channel " + ofToString(channel) + " is out of bounds.";
+	if(badChannel(channel)) {
 		return 0;
 	}
+	channel--; // convert from 1-initial to 0-initial
 	return levels[channel];
 }
