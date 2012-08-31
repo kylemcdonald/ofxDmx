@@ -21,7 +21,6 @@ ofxDmx::~ofxDmx() {
 
 bool ofxDmx::connect(int device, unsigned int channels) {
 	serial.enumerateDevices();
-	serial.setVerbose(false);
 	connected = serial.setup(device, 57600); 
 	setChannels(channels);
 	return connected;
@@ -29,7 +28,6 @@ bool ofxDmx::connect(int device, unsigned int channels) {
 
 bool ofxDmx::connect(string device, unsigned int channels) {
 	serial.enumerateDevices();
-	serial.setVerbose(false);
 	connected = serial.setup(device.c_str(), 57600);
 	setChannels(channels);
 	return connected;
