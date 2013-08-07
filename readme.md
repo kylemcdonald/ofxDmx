@@ -2,7 +2,7 @@
 
 ofxDmx is based on DmxPro from Erik Sjodin, later adapted by Marek Bereza.
 
-ofxDmx is targeted at the [Enttec DmxPro](http://www.enttec.com/index.php?main_menu=Products&prod=70304&show=description) running the virtual serial port drivers available from FTDI.
+ofxDmx is targeted at the [Enttec DmxPro](http://www.enttec.com/index.php?main_menu=Products&prod=70304&show=description) running the virtual serial port drivers [available from FTDI](http://www.ftdichip.com/Drivers/VCP.htm).
 
 ## About Channel Numbering
 
