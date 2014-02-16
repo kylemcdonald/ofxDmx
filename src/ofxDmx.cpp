@@ -39,6 +39,7 @@ bool ofxDmx::isConnected() {
 
 void ofxDmx::disconnect() {
 	serial.close();
+    connected = false;
 }
 
 void ofxDmx::setChannels(unsigned int channels) {
