@@ -3,30 +3,30 @@
 void ofApp::setup() {
 	ofSetVerticalSync(true);
 	
-	redCurve.setup(256);
-	greenCurve.setup(256);
-	blueCurve.setup(256);
+
 	
-	ofxXmlSettings xml("dmx.xml");
-	port = xml.getValue("port", "");
-	modules = xml.getValue("modules", 10);
-	channelsPerModule = xml.getValue("channelsPerModule", 4);
+    modules = 6;
 	
-	panel.setup(256, 740);
+	panel.setup();
 	panel.setPosition(4, 4);
-	panel.addPanel("settings 0");
-	panel.addToggle("saveCurves", false);
-	panel.addToggle("loadCurves", false);
-	panel.addSlider("red", 1, 0, 1);
-	panel.addSlider("green", 1, 0, 1);
-	panel.addSlider("blue", 1, 0, 1);
+	panel.setName("settings 0");
+	panel.add(save.set("save", false));
+	panel.add(load.set("load", false));
+    
+    
 	for(int module = 1; module <= modules; module++) {
-		string label = "mod" + ofToString(module);
-		panel.addSlider(label, 0, 0, 255, true);
+        string label = "mod" + ofToString(module);
+        panel.add(red[module].set("red" +ofToString(module), 0, 0, 1));
+        panel.add(green[module].set("green"+ofToString(module), 0, 0, 1));
+        panel.add(blue[module].set("blue"+ofToString(module), 0, 0, 1));
+        
+		//panel.add(moduleNum[module].set(label, false));
 	}
-	panel.loadSettings("settings.xml");
+
+
+    panel.loadFromFile("settings.xml");
 	
-	panel.setValueB("loadCurves", true);
+    load = true;
 	
 	dmx.connect(port, modules * channelsPerModule);
 	dmx.update(true); // black on startup
@@ -38,54 +38,42 @@ void ofApp::exit() {
 }
 
 void ofApp::update() {
-	if(panel.getValueB("saveCurves")) {
-		redCurve.save("redCurve.yml");
-		greenCurve.save("greenCurve.yml");
-		blueCurve.save("blueCurve.yml");
-		panel.setValueB("saveCurves", false);
+	if(save) {
+        panel.saveToFile("settings.xml");
+        save = false;
 	}
-	if(panel.getValueB("loadCurves")) {
-		redCurve.load("redCurve.yml");
-		greenCurve.load("greenCurve.yml");
-		blueCurve.load("blueCurve.yml");
-		panel.setValueB("loadCurves", false);
+	if(load) {
+        panel.loadFromFile("settings.xml");
+        load = false;
 	}
 	
-	float red = panel.getValueF("red");
-	float green = panel.getValueF("green");
-	float blue = panel.getValueF("blue");
+
 	int channel = 1;
 	for(int module = 1; module <= modules; module++) {
-		string label = "mod" + ofToString(module);
-		int cur = panel.getValueI(label);
-		dmx.setLevel(channel++, redCurve[cur * red]);
-		dmx.setLevel(channel++, greenCurve[cur * green]);
-		dmx.setLevel(channel++, blueCurve[cur * blue]);
+        dmx.setLevel(channel++, red[module]*255);
+		dmx.setLevel(channel++, green[module]*255);
+		dmx.setLevel(channel++, blue[module]*255);
 		channel++;
 	}
 	if(dmx.isConnected()) {
 		dmx.update();
 	} else {
-		panel.msg = "Could not connect to port " + port;
+        ofSetColor(255);
+        ofDrawBitmapString("Could not connect to port " + ofToString(port), 250,20);
 	}
 }
 
 void ofApp::draw() {
 	ofBackground(0);
 	ofPushMatrix();
-	ofTranslate(256 + 8, 4);
-	redCurve.draw(0, 0);
-	greenCurve.draw(0, 256);
-	blueCurve.draw(0, 512);
 	
 	ofTranslate(256, 0);
 	int channel = 1;
 	for(int module = 1; module <= modules; module++) {
-		string label = "mod" + ofToString(module);
+		string label = "module " + ofToString(module);
 		int rc = channel++;
 		int gc = channel++;
 		int bc = channel++;
-		int ac = channel++;
 		int r = dmx.getLevel(rc);
 		int g = dmx.getLevel(gc);
 		int b = dmx.getLevel(bc);
@@ -103,6 +91,8 @@ void ofApp::draw() {
 	}
 	
 	ofPopMatrix();
+    
+    panel.draw();
 }
 
 void ofApp::keyPressed(int key) {
