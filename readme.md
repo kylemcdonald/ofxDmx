@@ -15,3 +15,9 @@ DMX is an unusual specification in that channels begin at `1`. There is no `0` c
 	}
 
 Notice that the for loop starts at `1`, and the stopping condition is `channel <= total` rather than the usual `<` operator.
+
+
+
+Development Notes for updating to include the Enttec OpenDMX module
+
+http://www.enttec.com/download/examples/OpenDMX.cs
