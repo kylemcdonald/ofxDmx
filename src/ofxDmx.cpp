@@ -9,9 +9,15 @@
 #define DMX_PRO_END_SIZE 1
 #define DMX_PRO_END_MSG 0xE7
 
+// Enttec DMX USB PRO MK2 specific
+#define DMX_PRO_SEND_PACKET2 0xA9 // send to universe #2
+#define ENTTEC_PRO_ENABLE_API2 0x0D
+#define ENTTEC_PRO_PORT_ASS_REQ 0xCB
+
 ofxDmx::ofxDmx()
 :connected(false)
 ,needsUpdate(false) {
+	universes = 1;
 }
 
 ofxDmx::~ofxDmx() {
@@ -44,29 +50,93 @@ void ofxDmx::disconnect() {
 
 void ofxDmx::setChannels(unsigned int channels) {
 	levels.resize(ofClamp(channels, 24, 512));
+	levels2.resize(ofClamp(channels, 24, 512));
+}
+
+void ofxDmx::activateMk2() {
+
+	// step 1: set API -key
+	unsigned int dataSize = 4;
+	unsigned int packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
+	vector<unsigned char> packet(packetSize);
+	
+	// header
+	packet[0] = DMX_PRO_START_MSG;
+	packet[1] = ENTTEC_PRO_ENABLE_API2;
+	packet[2] = dataSize & 0xff; // data length lsb
+	packet[3] = (dataSize >> 8) & 0xff; // data length msb
+	
+	// data
+	packet[4] = 0xAD;
+	packet[5] = 0x88;
+	packet[6] = 0xD0;
+	packet[7] = 0xC8;
+	
+	// end
+	packet[packetSize - 1] = DMX_PRO_END_MSG;
+	
+	serial.writeBytes(&packet[0], packetSize);
+
+	ofSleepMillis(200);
+	cout << "MK2: activated with API key" << endl;
+
+
+
+
+	// step 2, enable both ports
+	dataSize = 2;
+	packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
+	vector<unsigned char> packet2(packetSize);
+	
+	// header
+	packet2[0] = DMX_PRO_START_MSG;
+	packet2[1] = ENTTEC_PRO_PORT_ASS_REQ;
+	packet2[2] = dataSize & 0xff; // data length lsb
+	packet2[3] = (dataSize >> 8) & 0xff; // data length msb
+	
+	// data
+	packet2[4] = 1;
+	packet2[5] = 1;
+	
+	// end
+	packet2[packetSize - 1] = DMX_PRO_END_MSG;
+	
+	serial.writeBytes(&packet2[0], packetSize);
+
+	ofSleepMillis(200);
+	cout << "MK2: enabled both DMX ports" << endl;
+
+	universes = 2;
+
 }
 
 void ofxDmx::update(bool force) {
 	if(needsUpdate || force) {
 		needsUpdate = false;
-		unsigned int dataSize = levels.size() + DMX_START_CODE_SIZE;
-		unsigned int packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
-		vector<unsigned char> packet(packetSize);
-		
-		// header
-		packet[0] = DMX_PRO_START_MSG;
-		packet[1] = DMX_PRO_SEND_PACKET;
-		packet[2] = dataSize & 0xff; // data length lsb
-		packet[3] = (dataSize >> 8) & 0xff; // data length msb
-		
-		// data
-		packet[4] = DMX_START_CODE; // first data byte
-		copy(levels.begin(), levels.end(), packet.begin() + 5);
-		
-		// end
-		packet[packetSize - 1] = DMX_PRO_END_MSG;
-		
-		serial.writeBytes(&packet[0], packetSize);
+
+		for (unsigned int i=0; i<universes; i++) {
+
+			unsigned int dataSize = levels.size() + DMX_START_CODE_SIZE;
+			unsigned int packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
+			vector<unsigned char> packet(packetSize);
+			
+			// header
+			packet[0] = DMX_PRO_START_MSG;
+			if (i==0) packet[1] = DMX_PRO_SEND_PACKET;
+			else packet[1] = DMX_PRO_SEND_PACKET2;
+			packet[2] = dataSize & 0xff; // data length lsb
+			packet[3] = (dataSize >> 8) & 0xff; // data length msb
+			
+			// data
+			packet[4] = DMX_START_CODE; // first data byte
+			if (i==0) copy(levels.begin(), levels.end(), packet.begin() + 5);
+			else copy(levels2.begin(), levels2.end(), packet.begin() + 5);
+
+			// end
+			packet[packetSize - 1] = DMX_PRO_END_MSG;
+			
+			serial.writeBytes(&packet[0], packetSize);
+		}
 		
 #ifdef OFXDMX_SPEW
 		cout << "@" << ofGetSystemTime() << endl;
@@ -92,20 +162,30 @@ bool ofxDmx::badChannel(unsigned int channel) {
 	return false;
 }
 
-void ofxDmx::setLevel(unsigned int channel, unsigned char level) {
+void ofxDmx::setLevel(unsigned int channel, unsigned char level, unsigned int universe) {
 	if(badChannel(channel)) {
 		return;
 	}
 	channel--; // convert from 1-initial to 0-initial
-	if(level != levels[channel]) {
-		levels[channel] = level;
-		needsUpdate = true;
+	if (universe == 1) {
+		if(level != levels[channel]) {
+			levels[channel] = level;
+			needsUpdate = true;
+		}
+	} else if (universe == 2) {
+		if(level != levels2[channel]) {
+			levels2[channel] = level;
+			needsUpdate = true;
+		}
 	}
 }
 
 void ofxDmx::clear() {
 	for (int i = 0; i < levels.size(); i++) {
 		levels[i] = 0;
+	}
+	for (int i = 0; i < levels2.size(); i++) {
+		levels2[i] = 0;
 	}
 }
 

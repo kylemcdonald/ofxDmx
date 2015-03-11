@@ -13,9 +13,10 @@ public:
 	// is directly related to the number of channels, so use the minimum required.
 	bool connect(int device = 0, unsigned int channels = 24);
 	bool connect(string device, unsigned int channels = 24);
+	void activateMk2();
 	void disconnect();
 	
-	void setLevel(unsigned int channel, unsigned char level);
+	void setLevel(unsigned int channel, unsigned char level, unsigned int universe = 1);
 	void clear();
 	unsigned char getLevel(unsigned int channel);	
 	void update(bool force = false); // send a packet to the dmx controller
@@ -25,7 +26,9 @@ public:
 	
 private:	
 	int connected;
+	int universes;
 	vector<unsigned char> levels;
+	vector<unsigned char> levels2;	// 2nd universe, only for MK2
 	ofSerial serial;
 	bool needsUpdate;
 	
