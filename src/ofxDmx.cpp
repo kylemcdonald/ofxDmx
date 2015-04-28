@@ -53,7 +53,15 @@ void ofxDmx::setChannels(unsigned int channels) {
 	levels2.resize(ofClamp(channels, 24, 512));
 }
 
-void ofxDmx::activateMk2() {
+/* 	
+	You can use your own API key, but don't have to! 
+
+	ATTENTION: this won't throw an error, if no MK2 is plugged in.
+	You'll just have to wait and see if your 2nd universe lights 
+	turn on to know if the activation worked. Or watch out for:
+	LED on device blinks RED if 2nd universe setLevel msg was rejected.
+*/
+void ofxDmx::activateMk2(unsigned char key0, unsigned char key1, unsigned char key2, unsigned char key3) {
 
 	// step 1: set API -key
 	unsigned int dataSize = 4;
@@ -66,11 +74,11 @@ void ofxDmx::activateMk2() {
 	packet[2] = dataSize & 0xff; // data length lsb
 	packet[3] = (dataSize >> 8) & 0xff; // data length msb
 	
-	// data
-	packet[4] = 0xAD;
-	packet[5] = 0x88;
-	packet[6] = 0xD0;
-	packet[7] = 0xC8;
+	// data = API key, LSB at lowest address
+	packet[4] = key3;
+	packet[5] = key2;
+	packet[6] = key1;
+	packet[7] = key0;
 	
 	// end
 	packet[packetSize - 1] = DMX_PRO_END_MSG;
