@@ -4,7 +4,6 @@
 
 #include "ofxDmx.h"
 #include "ofxGui.h"
-#include "ofxXmlSettings.h"
 
 class ofApp : public ofBaseApp {
 public:
@@ -12,7 +11,6 @@ public:
 	void exit();
 	void update();
 	void draw();
-	void keyPressed(int key);
 	
 	ofxDmx dmx;
 	ofxPanel panel;
