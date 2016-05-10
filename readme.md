@@ -16,7 +16,19 @@ DMX is an unusual specification in that channels begin at `1`. There is no `0` c
 
 Notice that the for loop starts at `1`, and the stopping condition is `channel <= total` rather than the usual `<` operator.
 
+## Running the Example Projects
 
+Project files for the examples are not included so you will need to generate the project files for your operating system and development environment using the OF ProjectGenerator which is included with the OpenFrameworks distribution.
+
+To (re)generate project files for an *existing* project:
+
+* click the "Import" button in the ProjectGenerator
+* navigate the to base folder for the project ie. "example"
+* click the "Update" button
+
+If everything went Ok, you should now be able to open the generated project and build/run the example.
+
+## Dev Notes
 
 Development Notes for updating to include the Enttec OpenDMX module
 
