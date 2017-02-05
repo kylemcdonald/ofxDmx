@@ -3,8 +3,6 @@
 void ofApp::setup() {
 	ofSetVerticalSync(true);
 	
-
-	
     modules = 6;
 	
 	panel.setup();
@@ -12,7 +10,6 @@ void ofApp::setup() {
 	panel.setName("settings 0");
 	panel.add(save.set("save", false));
 	panel.add(load.set("load", false));
-    
     
 	for(int module = 1; module <= modules; module++) {
         string label = "mod" + ofToString(module);
@@ -22,9 +19,6 @@ void ofApp::setup() {
         
 		//panel.add(moduleNum[module].set(label, false));
 	}
-
-
-    panel.loadFromFile("settings.xml");
 	
     load = true;
 	
@@ -43,10 +37,11 @@ void ofApp::update() {
         save = false;
 	}
 	if(load) {
-        panel.loadFromFile("settings.xml");
+        if(ofFile::doesFileExist(ofToDataPath("settings.xml"))) {
+			panel.loadFromFile("settings.xml");
+		}
         load = false;
 	}
-	
 
 	int channel = 1;
 	for(int module = 1; module <= modules; module++) {
@@ -79,10 +74,10 @@ void ofApp::draw() {
 		int b = dmx.getLevel(bc);
 		ofSetColor(r, g, b);
 		ofFill();
-		ofRect(4, module * 16 + 6, 14, 14);
+		ofDrawRectangle(4, module * 16 + 6, 14, 14);
 		ofSetColor(255);
 		ofNoFill();
-		ofRect(4, module * 16 + 6, 14, 14);
+		ofDrawRectangle(4, module * 16 + 6, 14, 14);
 		string rs = ofToString(rc) + ":" + ofToString(r);
 		string gs = ofToString(gc) + ":" + ofToString(g);
 		string bs = ofToString(bc) + ":" + ofToString(b);
@@ -93,7 +88,4 @@ void ofApp::draw() {
 	ofPopMatrix();
     
     panel.draw();
-}
-
-void ofApp::keyPressed(int key) {
 }
