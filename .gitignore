@@ -1,12 +1,108 @@
+# Some general ignore patterns
+
+# temp & build files
+build/
+obj/
+*.o
+Debug*/
+Release*/
+*.mode*
+*.app/
+*.pyc
+.svn/
+*.exe
+*.dll
+*.lib
+
+# IDE-specific ignore patterns (e.g. user-specific files)
+
+# XCode
+*.xcodeproj
+project.pbxproj
+xcshareddata
+xcschemes
+Project.xcconfig
+config.make
+openFrameworks-Info.plist
+*.pbxuser
+*.perspective
+*.perspectivev3
+*.mode1v3
+*.mode2v3
+# XCode 4
+xcuserdata
+*.xcworkspace
+
+# Code::Blocks
 *.depend
 *.layout
-*.mode*v3
-*.pbxuser
-*.app*
-*.DS_*
+*.cbTemp
 
-.svn/
-obj/
-bin/
-build/
-!data/
+# Visual Studio
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+icon.rc
+*.sdf
+*.pdf
+*.opensdf
+*.suo
+ipch/
+*.pdb
+*.exp
+*.ilk
+*.aps
+
+# Eclipse
+.metadata
+local.properties
+.externalToolBuilders
+
+# codelite
+*.session
+*.tags
+*.workspace.*
+
+#Linux/OSX
+Makefile
+
+# OS-specific ignore patterns
+
+# Linux
+*~
+# KDE
+.directory
+
+# OSX
+.DS_Store
+*.swp
+*~.nib
+# Thumbnails
+._*
+
+# Windows
+# Windows image file caches
+Thumbs.db
+# Folder config file
+Desktop.ini
+
+# Android
+.csettings
+
+# Packages
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
