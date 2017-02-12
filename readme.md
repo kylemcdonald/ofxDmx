@@ -16,6 +16,12 @@ DMX is an unusual specification in that channels begin at `1`. There is no `0` c
 
 Notice that the for loop starts at `1`, and the stopping condition is `channel <= total` rather than the usual `<` operator.
 
+
+## Enttec USB PRO Mk2 
+
+To run the 2 DMX universes of the [Enttec USB PRO Mk2](http://www.enttec.com/?main_menu=Products&pn=70314&show=description) you need to first activate the second universe with `dmx.activateMk2()` and then specify which universe you address with `dmx.setLevel(channel, value, universe)`. 
+
+
 ## Running the Example Projects
 
 Project files for the examples are not included so you will need to generate the project files for your operating system and development environment using the OF ProjectGenerator which is included with the OpenFrameworks distribution.
