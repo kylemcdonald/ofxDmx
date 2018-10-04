@@ -32,7 +32,7 @@ bool ofxDmx::connect(int device, unsigned int channels) {
 	return connected;
 }
 
-bool ofxDmx::connect(string device, unsigned int channels) {
+bool ofxDmx::connect(std::string device, unsigned int channels) {
 	serial.listDevices();
 	connected = serial.setup(device.c_str(), 57600);
 	setChannels(channels);
@@ -66,7 +66,7 @@ void ofxDmx::activateMk2(unsigned char key0, unsigned char key1, unsigned char k
 	// step 1: set API -key
 	unsigned int dataSize = 4;
 	unsigned int packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
-	vector<unsigned char> packet(packetSize);
+	std::vector<unsigned char> packet(packetSize);
 	
 	// header
 	packet[0] = DMX_PRO_START_MSG;
@@ -94,7 +94,7 @@ void ofxDmx::activateMk2(unsigned char key0, unsigned char key1, unsigned char k
 	// step 2, enable both ports
 	dataSize = 2;
 	packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
-	vector<unsigned char> packet2(packetSize);
+	std::vector<unsigned char> packet2(packetSize);
 	
 	// header
 	packet2[0] = DMX_PRO_START_MSG;
@@ -126,7 +126,7 @@ void ofxDmx::update(bool force) {
 
 			unsigned int dataSize = levels.size() + DMX_START_CODE_SIZE;
 			unsigned int packetSize = DMX_PRO_HEADER_SIZE + dataSize + DMX_PRO_END_SIZE;
-			vector<unsigned char> packet(packetSize);
+			std::vector<unsigned char> packet(packetSize);
 			
 			// header
 			packet[0] = DMX_PRO_START_MSG;
