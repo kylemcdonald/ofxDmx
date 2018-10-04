@@ -12,7 +12,7 @@ public:
 	// connect to the serial port. valid number of channels is 24-512. performance
 	// is directly related to the number of channels, so use the minimum required.
 	bool connect(int device = 0, unsigned int channels = 24);
-	bool connect(string device, unsigned int channels = 24);
+	bool connect(std::string device, unsigned int channels = 24);
 	void activateMk2(unsigned char key0 = 0xC8, unsigned char key1 = 0xD0, unsigned char key2 = 0x88, unsigned char key3 = 0xAD);
 	void disconnect();
 	
@@ -27,8 +27,8 @@ public:
 private:	
 	int connected;
 	int universes;
-	vector<unsigned char> levels;
-	vector<unsigned char> levels2;	// 2nd universe, only for MK2
+	std::vector<unsigned char> levels;
+	std::vector<unsigned char> levels2;	// 2nd universe, only for MK2
 	ofSerial serial;
 	bool needsUpdate;
 	
