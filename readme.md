@@ -39,3 +39,5 @@ If everything went Ok, you should now be able to open the generated project and 
 Development Notes for updating to include the Enttec OpenDMX module
 
 http://www.enttec.com/download/examples/OpenDMX.cs
+
+

@@ -27,12 +27,12 @@ ofxDmx::~ofxDmx() {
 
 bool ofxDmx::connect(int device, unsigned int channels) {
 	serial.listDevices();
-	connected = serial.setup(device, 57600); 
-	setChannels(channels);
+	connected = serial.setup(device, 57600);
+	if(connected) setChannels(channels);
 	return connected;
 }
 
-bool ofxDmx::connect(string device, unsigned int channels) {
+bool ofxDmx::connect(std::string device, unsigned int channels) {
 	serial.listDevices();
 	connected = serial.setup(device.c_str(), 57600);
 	setChannels(channels);
@@ -87,9 +87,6 @@ void ofxDmx::activateMk2(unsigned char key0, unsigned char key1, unsigned char k
 
 	ofSleepMillis(200);
 	cout << "MK2: activated with API key" << endl;
-
-
-
 
 	// step 2, enable both ports
 	dataSize = 2;
